@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour
 
         pilotPlayer = 1;
         ui.RefreshRoles(pilotPlayer);
+        ui.SetAbilityFills(pilot.Boost, gunner.Shield);
         ui.SetHull(health.Hull);
         ui.ShowStartScreen();
         state = RoundState.WaitingToStart;
@@ -87,7 +88,7 @@ public class GameManager : MonoBehaviour
         gunner.Tick(dt);
         health.Tick(dt);
         spawner.Tick(dt);
-        ui.SetCooldowns(pilot.Boost.ReadyProgress01, gunner.Shield.ReadyProgress01);
+        ui.SetAbilityFills(pilot.Boost, gunner.Shield);
         ui.Tick();
     }
     #endregion

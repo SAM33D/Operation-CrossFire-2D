@@ -22,15 +22,8 @@ public class TimedAbility
     public bool IsActive => activeTimer > 0f;
     public bool IsReady => !IsActive && cooldownTimer <= 0f;
 
-    public float ReadyProgress01
-    {
-        get
-        {
-            if (IsActive) return 0f;
-            if (cooldown <= 0f) return 1f;
-            return 1f - Mathf.Clamp01(cooldownTimer / cooldown);
-        }
-    }
+    public float ActiveRemaining01 => duration > 0f ? Mathf.Clamp01(activeTimer / duration) : 0f;
+    public float CooldownRemaining01 => IsActive || cooldown <= 0f ? 0f : Mathf.Clamp01(cooldownTimer / cooldown);
 
     public bool TryActivate()
     {

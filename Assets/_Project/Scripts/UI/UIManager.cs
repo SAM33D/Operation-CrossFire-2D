@@ -14,7 +14,9 @@ public class UIManager : MonoBehaviour
         public TMP_Text roleLabel;
         public GameObject pilotControls;
         public GameObject gunnerControls;
+        public Image boostActiveFill;
         public Image boostCooldownFill;
+        public Image shieldActiveFill;
         public Image shieldCooldownFill;
     }
 
@@ -91,13 +93,27 @@ public class UIManager : MonoBehaviour
         player2Panel.roleLabel.SetText(player1IsPilot ? "PLAYER 2 — GUNNER" : "PLAYER 2 — PILOT");
     }
 
-    // Both panels show both fills; only the visible layout's fill is seen
-    public void SetCooldowns(float boostReady01, float shieldReady01)
+    public void SetAbilityFills(TimedAbility boost, TimedAbility shield)
     {
-        player1Panel.boostCooldownFill.fillAmount = boostReady01;
-        player2Panel.boostCooldownFill.fillAmount = boostReady01;
-        player1Panel.shieldCooldownFill.fillAmount = shieldReady01;
-        player2Panel.shieldCooldownFill.fillAmount = shieldReady01;
+        SetAbilityFills(player1Panel, boost, shield);
+        SetAbilityFills(player2Panel, boost, shield);
+    }
+
+    // Both panels are updated; only the visible layout's fills are seen
+    private void SetAbilityFills(PlayerPanel panel, TimedAbility boost, TimedAbility shield)
+    {
+        SetFill(panel.boostActiveFill, boost.ActiveRemaining01);
+        SetFill(panel.boostCooldownFill, boost.CooldownRemaining01);
+        SetFill(panel.shieldActiveFill, shield.ActiveRemaining01);
+        SetFill(panel.shieldCooldownFill, shield.CooldownRemaining01);
+    }
+
+    // Shown only while draining; switched off once empty
+    private static void SetFill(Image fill, float amount)
+    {
+        bool visible = amount > 0f;
+        if (fill.gameObject.activeSelf != visible) fill.gameObject.SetActive(visible);
+        if (visible) fill.fillAmount = amount;
     }
 
     private void ApplyRole(PlayerPanel panel, bool isPilot)
