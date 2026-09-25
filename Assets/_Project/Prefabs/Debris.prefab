@@ -172,7 +172,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Hazard
   maxHealth: 2
   scoreValue: 15
-  baseSpeed: 2
+  baseSpeed: 1.6
   isBreachHazard: 0
   canShoot: 0
   fireInterval: 1.8
