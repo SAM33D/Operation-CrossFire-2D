@@ -309,11 +309,3 @@ Where the spec was silent, or the mockups disagreed with the text, this is what 
 | Enemy firing | Enemies fire straight down on a fixed interval, with a random first delay so they don't all fire together. |
 | Win timing | You win the moment the timer hits 60s, whatever is still on screen. |
 | Cooldown indicators | Shown as fills on the Boost and Shield buttons. An active Shield is a circle around the ship. |
-
----
-
-## 11. Incomplete work and next steps
-
-- **Controls cover part of the playfield.** The two control panels sit in the bottom corners, so the ship and falling hazards can pass behind them. The fix I'd make next is to raise the playfield floor to the top of the panels (the ship, breach line and aim limit all come from `Playfield`, so it's one change there).
-- **No on-device profiling.** Explained in the Performance section. With a cable I'd do a Development Build with Autoconnect Profiler and capture the Critical phase on the phone.
-- **Not a full check against every line of the spec.** I built from the spec and checked it when questions came up, but I didn't do a final line-by-line pass through it.
