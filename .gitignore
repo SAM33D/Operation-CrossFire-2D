@@ -56,4 +56,12 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 
+# Confidential: exercise spec, never committed
 Docs/Private/
+
+# Android build temp files
+.utmp/
+
+# Created by the performance-testing package during builds
+/Assets/Resources/
+/Assets/Resources.meta
