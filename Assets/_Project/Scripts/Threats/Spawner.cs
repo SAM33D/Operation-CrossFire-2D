@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -76,9 +77,36 @@ public class Spawner : MonoBehaviour
     {
         float roll = Random.value;
 
-        if (roll < debrisChance) return debrisPool;
-        if (currentPhase.spawnBreachHazards && roll < debrisChance + breachChance) return breachPool;
+        if (roll < debrisChance)
+        {
+            return debrisPool;
+        }
+
+        if (currentPhase.spawnBreachHazards && roll < debrisChance + breachChance)
+        {
+            return breachPool;
+        } 
+        
         return enemyPool;
+    }
+    #endregion
+
+    #region Bomb
+    public void ClearAllThreats()
+    {
+        KillAllHazards(enemyPool);
+        KillAllHazards(debrisPool);
+        KillAllHazards(breachPool);
+        enemyProjectilePool.ReturnAllActive();
+    }
+
+    private static void KillAllHazards(ObjectPool pool)
+    {
+        IReadOnlyList<PooledObject> hazards = pool.AllObjects;
+        for (int i = 0; i < hazards.Count; i++)
+        {
+            ((Hazard)hazards[i]).Kill();
+        }
     }
     #endregion
 

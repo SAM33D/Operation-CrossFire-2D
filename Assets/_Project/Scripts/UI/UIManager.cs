@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
         public Image boostCooldownFill;
         public Image shieldActiveFill;
         public Image shieldCooldownFill;
+        public Image bombCooldownFill;
     }
 
     [Header("HUD")]
@@ -93,19 +94,20 @@ public class UIManager : MonoBehaviour
         player2Panel.roleLabel.SetText(player1IsPilot ? "PLAYER 2 — GUNNER" : "PLAYER 2 — PILOT");
     }
 
-    public void SetAbilityFills(TimedAbility boost, TimedAbility shield)
+    public void SetAbilityFills(TimedAbility boost, TimedAbility shield, TimedAbility bomb)
     {
-        SetAbilityFills(player1Panel, boost, shield);
-        SetAbilityFills(player2Panel, boost, shield);
+        SetAbilityFills(player1Panel, boost, shield, bomb);
+        SetAbilityFills(player2Panel, boost, shield, bomb);
     }
 
     // Both panels are updated; only the visible layout's fills are seen
-    private void SetAbilityFills(PlayerPanel panel, TimedAbility boost, TimedAbility shield)
+    private void SetAbilityFills(PlayerPanel panel, TimedAbility boost, TimedAbility shield, TimedAbility bomb)
     {
         SetFill(panel.boostActiveFill, boost.ActiveRemaining01);
         SetFill(panel.boostCooldownFill, boost.CooldownRemaining01);
         SetFill(panel.shieldActiveFill, shield.ActiveRemaining01);
         SetFill(panel.shieldCooldownFill, shield.CooldownRemaining01);
+        SetFill(panel.bombCooldownFill, bomb.CooldownRemaining01);
     }
 
     // Shown only while draining; switched off once empty

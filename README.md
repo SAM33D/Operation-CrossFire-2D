@@ -1,6 +1,6 @@
 # Operation Cross-Fire
 
-A landscape 2D local co-op shooter for one phone. Two players share one ship: one is the **Pilot** (moves left/right, Boost) and the other is the **Gunner** (aims, fires, Shield). A round lasts 60 seconds. At 20s and 40s a **Quantum Flux** hits: whatever you're holding gets cancelled, the two players swap roles, and the game gets harder.
+A landscape 2D local co-op shooter for one phone. Two players share one ship: one is the **Pilot** (moves left/right, Boost) and the other is the **Gunner** (aims, fires, Shield, Bomb). A round lasts 60 seconds. At 20s and 40s a **Quantum Flux** hits: whatever you're holding gets cancelled, the two players swap roles, and the game gets harder.
 
 - **Win:** survive 60 seconds with at least 1 hull point.
 - **Lose:** hull hits 0, or a breach hazard (the orange diamond) reaches the bottom of the screen.
@@ -31,6 +31,7 @@ Press Play, then click **Start**. In the Editor, one person can drive both roles
 | Aim | Move the mouse (reticle follows the cursor) |
 | Fire | Hold left mouse button |
 | Shield | Right mouse button |
+| Bomb | `B` |
 
 Keyboard and mouse only work in the Editor and on desktop. On the phone, it's touch only.
 
@@ -39,7 +40,7 @@ Keyboard and mouse only work in the Editor and on desktop. On the phone, it's to
 Hold the phone in landscape. Each player has a control panel in their bottom corner (Player 1 on the left, Player 2 on the right). The panel shows the controls for that player's current role:
 
 - **Pilot panel (cyan):** ◀ ▶ to move, ▲ Boost
-- **Gunner panel (red):** a large AIM pad (drag to move the reticle, like a laptop trackpad), FIRE (hold), SHIELD
+- **Gunner panel (red):** a large AIM pad (drag to move the reticle, like a laptop trackpad), FIRE (hold), SHIELD, BOMB
 
 When the flux hits, the panels swap layouts, so each player uses the other role's controls in their own corner.
 
@@ -95,7 +96,8 @@ I kept this deliberately simple. Some rules I stuck to throughout:
    |           |           |           |           |           |
 InputHandler ShipPilot  ShipGunner  ShipHealth   Spawner    UIManager
 controls ->  move,      aim, fire,  hull,        spawns     HUD, panels,
-values       Boost      Shield      invuln.      threats    banner, screens
+values       Boost      Shield,     invuln.      threats    banner, screens
+                        Bomb                        |
                            |                        |
                        Laser pool          Enemy / Debris / Breach /
                                            EnemyProjectile pools
@@ -111,17 +113,17 @@ Playfield: works out the screen bounds from the camera and places the boundary t
 | `PhaseData` | One row of the phase table: name, start time, multipliers, and whether breach hazards spawn. |
 | `Playfield` | Works out the playfield bounds from the camera and positions the four boundary triggers, so it fits any aspect ratio. |
 | `BoundaryZone` | Marks a boundary trigger. `IsBottomEdge` is how a breach hazard knows it got through. |
-| `InputHandler` | Reads touches (and keyboard/mouse in the Editor) and turns them into control values: move direction, boost pressed, aim delta, fire held, shield pressed. It knows about controls, not players. |
+| `InputHandler` | Reads touches (and keyboard/mouse in the Editor) and turns them into control values: move direction, boost pressed, aim delta, fire held, shield pressed, bomb pressed. It knows about controls, not players. |
 | `TouchControl` | Sits on each on-screen button. Says which control it is and hit-tests a screen point. |
 | `ShipPilot` | Horizontal movement, clamping to the screen, Boost. |
-| `ShipGunner` | Reticle aiming, fire rate, lasers, Shield and the shield visual. |
+| `ShipGunner` | Reticle aiming, fire rate, lasers, Shield and the shield visual, Bomb. |
 | `ShipHealth` | Hull points, taking hits, the invulnerability window after a hit. |
-| `TimedAbility` | A plain class for "lasts X seconds, then cools down for Y". Used by both Boost and Shield. |
-| `Spawner` | Spawn timer, picks the threat type, applies the phase multipliers, fires enemy shots. |
+| `TimedAbility` | A plain class for "lasts X seconds, then cools down for Y". Used by Boost, Shield and Bomb. A duration of 0 makes it instant (the Bomb), so the cooldown starts straight away. |
+| `Spawner` | Spawn timer, picks the threat type, applies the phase multipliers, fires enemy shots, and clears the screen for the Bomb. |
 | `Hazard` | One script for enemies, debris and breach hazards. The differences are just inspector values on each prefab. |
 | `Projectile` | One script for player lasers and enemy shots. Flies straight and goes back to the pool at a boundary. |
 | `PooledObject` | Base class for anything pooled. Knows its pool and guards against being returned twice. |
-| `ObjectPool` | Creates one prefab type up front and hands instances out and back. |
+| `ObjectPool` | Creates one prefab type up front and hands instances out and back. Keeps a list of everything it created, so the Bomb can find what's active. |
 | `UIManager` | All UI: timer, score, phase, hull icons, player panels, ability fills, flux countdown/banner, start and end screens. |
 
 ### Startup order (`GameManager.Start`)
@@ -142,7 +144,7 @@ pilot.Tick(dt);
 gunner.Tick(dt);
 health.Tick(dt);
 spawner.Tick(dt);
-ui.SetAbilityFills(pilot.Boost, gunner.Shield);
+ui.SetAbilityFills(pilot.Boost, gunner.Shield, gunner.Bomb);
 ui.Tick();
 ```
 
@@ -202,6 +204,8 @@ The lifecycle:
 3. **Launch:** `Launch(...)` is where the object resets itself: position, rotation, health, colour, fire timer. Then it activates and sets its velocity. Velocity is set *after* `SetActive(true)`, because the Rigidbody isn't simulated while inactive.
 4. **ReturnToPool:** guarded by `IsActive`, so if two things try to return the same object in the same frame (e.g. a laser hitting two enemies at once), only the first one counts.
 5. **Return:** deactivated and pushed back on the stack.
+
+Each pool also keeps a list of every object it created. The Bomb goes through that list and kills whatever is active, so it doesn't need a scene search or any allocation.
 
 | Pool | Prewarm |
 |---|---|
@@ -308,4 +312,5 @@ Where the spec was silent, or the mockups disagreed with the text, this is what 
 | Held input at a flux | Fingers held during a flux are ignored until lifted. In the Editor, held keys/buttons are ignored until everything is released. |
 | Enemy firing | Enemies fire straight down on a fixed interval, with a random first delay so they don't all fire together. |
 | Win timing | You win the moment the timer hits 60s, whatever is still on screen. |
-| Cooldown indicators | Shown as fills on the Boost and Shield buttons. An active Shield is a circle around the ship. |
+| Cooldown indicators | Shown as fills on the Boost, Shield and Bomb buttons. An active Shield is a circle around the ship. |
+| Bomb | Not in the spec, I added it after submitting. It's a Gunner ability like Shield, so it's on both players' Gunner layouts. It instantly kills every enemy, debris and breach hazard on screen (each gives its normal score) and clears enemy shots, then cools down for 10s. |

@@ -1,11 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// Duration + cooldown timer shared by Boost and Shield.
+/// Duration + cooldown timer shared by Boost, Shield and Bomb.
 /// </summary>
 [System.Serializable]
 public class TimedAbility
 {
+    [Tooltip("0 = instant, the cooldown starts on use.")]
     [SerializeField] private float duration;
     [Tooltip("Starts when the effect ends.")]
     [SerializeField] private float cooldown;
@@ -29,7 +30,8 @@ public class TimedAbility
     {
         if (!IsReady) return false;
 
-        activeTimer = duration;
+        if (duration <= 0f) cooldownTimer = cooldown;
+        else activeTimer = duration;
         return true;
     }
 

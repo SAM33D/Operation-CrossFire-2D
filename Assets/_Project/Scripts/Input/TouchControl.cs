@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum ControlType { Left, Right, Boost, Aim, Fire, Shield }
+public enum ControlType { Left, Right, Boost, Aim, Fire, Shield, Bomb }
 
 /// <summary>
 /// An on-screen control area. Says which control it is and whether a screen point is inside it.

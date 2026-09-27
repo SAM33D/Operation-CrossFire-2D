@@ -56,8 +56,11 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 
-# Confidential: exercise spec, never committed
-Docs/Private/
+# Private notes, except the planning docs
+Docs/Private/*
+!Docs/Private/CLAUDE.md
+!Docs/Private/IMPLEMENTATION_PLAN.md
+!Docs/Private/PHASE_PLAN.md
 
 # Android build temp files
 .utmp/

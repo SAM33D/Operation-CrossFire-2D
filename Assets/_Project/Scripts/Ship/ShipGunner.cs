@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Gunner controls: reticle aiming, firing at a fixed cadence, and Shield.
+/// Gunner controls: reticle aiming, firing at a fixed cadence, Shield and Bomb.
 /// </summary>
 public class ShipGunner : MonoBehaviour
 {
@@ -23,17 +23,24 @@ public class ShipGunner : MonoBehaviour
     [SerializeField] private TimedAbility shield = new TimedAbility(1.5f, 5f);
     [SerializeField] private GameObject shieldVisual;
 
+    [Header("Bomb")]
+    [Tooltip("Clears every threat on screen. Duration 0 = instant.")]
+    [SerializeField] private TimedAbility bomb = new TimedAbility(0f, 10f);
+
     private InputHandler input;
     private Playfield playfield;
+    private Spawner spawner;
     private float fireTimer;
 
     public bool IsShieldActive => shield.IsActive;
     public TimedAbility Shield => shield;
+    public TimedAbility Bomb => bomb;
 
     public void Initialize()
     {
         input = GameManager.Instance.Input;
         playfield = GameManager.Instance.Playfield;
+        spawner = GameManager.Instance.Spawner;
 
         reticle.position = (Vector2)muzzle.position + Vector2.up * ReticleStartHeight;
         shieldVisual.SetActive(false);
@@ -43,6 +50,7 @@ public class ShipGunner : MonoBehaviour
     public void Tick(float dt)
     {
         UpdateShield(dt);
+        UpdateBomb(dt);
         UpdateAim();
         UpdateFiring(dt);
     }
@@ -104,6 +112,16 @@ public class ShipGunner : MonoBehaviour
         if (input.ShieldPressed) shield.TryActivate();
 
         if (shieldVisual.activeSelf != shield.IsActive) shieldVisual.SetActive(shield.IsActive);
+    }
+
+    #endregion
+
+    #region Bomb
+
+    private void UpdateBomb(float dt)
+    {
+        bomb.Tick(dt);
+        if (input.BombPressed && bomb.TryActivate()) spawner.ClearAllThreats();
     }
 
     #endregion

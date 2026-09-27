@@ -12,12 +12,15 @@ public class ObjectPool : MonoBehaviour
     [SerializeField] private int prewarmCount = 10;
 
     private Stack<PooledObject> available;
+    private List<PooledObject> allObjects;
     private int activeCount;
     private int peakActiveCount;
 
     public void Prewarm()
     {
         available = new Stack<PooledObject>(prewarmCount);
+        allObjects = new List<PooledObject>(prewarmCount);
+        
         for (int i = 0; i < prewarmCount; i++)
         {
             available.Push(CreateObject());
@@ -50,6 +53,17 @@ public class ObjectPool : MonoBehaviour
         activeCount--;
     }
 
+    // Every object this pool created, active or not
+    public IReadOnlyList<PooledObject> AllObjects => allObjects;
+
+    public void ReturnAllActive()
+    {
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            allObjects[i].ReturnToPool();
+        }
+    }
+
     public void LogPeakUsage()
     {
         Debug.Log($"[ObjectPool] '{name}': peak {peakActiveCount} in use at once (prewarmed {prewarmCount}).", this);
@@ -60,6 +74,7 @@ public class ObjectPool : MonoBehaviour
         PooledObject obj = Instantiate(prefab, transform);
         obj.OwnerPool = this;
         obj.gameObject.SetActive(false);
+        allObjects.Add(obj);
         return obj;
     }
 }

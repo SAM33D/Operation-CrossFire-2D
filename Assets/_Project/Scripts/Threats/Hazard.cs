@@ -83,11 +83,18 @@ public class Hazard : PooledObject
 
         if (health <= 0)
         {
-            GameManager.Instance.AddScore(scoreValue);
-            ReturnToPool();
+            Kill();
             return;
         }
 
         spriteRenderer.color = Color.Lerp(Color.black, originalColor, 0.4f + 0.6f * health / maxHealth);
+    }
+
+    public void Kill()
+    {
+        if (!IsActive) return;
+
+        GameManager.Instance.AddScore(scoreValue);
+        ReturnToPool();
     }
 }

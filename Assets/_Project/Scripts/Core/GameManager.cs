@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour
 
         pilotPlayer = 1;
         ui.RefreshRoles(pilotPlayer);
-        ui.SetAbilityFills(pilot.Boost, gunner.Shield);
+        ui.SetAbilityFills(pilot.Boost, gunner.Shield, gunner.Bomb);
         ui.SetHull(health.Hull);
         ui.ShowStartScreen();
         state = RoundState.WaitingToStart;
@@ -78,17 +78,19 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if (state != RoundState.Playing) return;
+        
         float dt = Time.deltaTime;
 
         input.Tick();
         UpdateRoundTimer(dt);
+
         if (state != RoundState.Playing) return;
 
         pilot.Tick(dt);
         gunner.Tick(dt);
         health.Tick(dt);
         spawner.Tick(dt);
-        ui.SetAbilityFills(pilot.Boost, gunner.Shield);
+        ui.SetAbilityFills(pilot.Boost, gunner.Shield, gunner.Bomb);
         ui.Tick();
     }
     #endregion
@@ -126,7 +128,12 @@ public class GameManager : MonoBehaviour
     {
         elapsed += dt;
 
-        if (elapsed >= roundDuration) { EndRound(true, "Corridor secured"); return; }
+        if (elapsed >= roundDuration) 
+        { 
+            EndRound(true, "Corridor secured"); 
+            return; 
+        }
+
         if (!HasNextPhase) return;
 
         float timeToFlux = phases[phaseIndex + 1].startTime - elapsed;

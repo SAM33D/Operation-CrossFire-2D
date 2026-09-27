@@ -30,6 +30,7 @@ public class InputHandler : MonoBehaviour
     public bool BoostPressed { get; private set; }
     public bool FireHeld { get; private set; }
     public bool ShieldPressed { get; private set; }
+    public bool BombPressed { get; private set; }
     public Vector2 AimDragDelta { get; private set; }
     public bool HasMouseAim { get; private set; }
     public Vector2 MouseAimPoint { get; private set; }
@@ -65,6 +66,7 @@ public class InputHandler : MonoBehaviour
         BoostPressed = false;
         FireHeld = false;
         ShieldPressed = false;
+        BombPressed = false;
         AimDragDelta = Vector2.zero;
         HasMouseAim = false;
 
@@ -111,6 +113,7 @@ public class InputHandler : MonoBehaviour
 
             if (type == ControlType.Boost) BoostPressed = true;
             else if (type == ControlType.Shield) ShieldPressed = true;
+            else if (type == ControlType.Bomb) BombPressed = true;
             return;
         }
     }
@@ -160,13 +163,14 @@ public class InputHandler : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space)) BoostPressed = true;
         if (Input.GetMouseButtonDown(1)) ShieldPressed = true;
+        if (Input.GetKeyDown(KeyCode.B)) BombPressed = true;
     }
 
     private bool AnyDevControlHeld()
     {
         return Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)
             || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)
-            || Input.GetKey(KeyCode.Space)
+            || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.B)
             || Input.GetMouseButton(0) || Input.GetMouseButton(1);
     }
     #endregion
